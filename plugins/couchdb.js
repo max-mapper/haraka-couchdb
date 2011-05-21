@@ -22,7 +22,7 @@ function attachment() {
                 doc._attachments[filename] = {content_type: content_type};
             },
             data: function(data) { bufs.push(data) },
-            end: function() { doc._attachments[filename]['data'] = bufs.slice().toString('base64') },
+            end: function() { if(filename) doc._attachments[filename]['data'] = bufs.slice().toString('base64') },
             doc: function() { return doc }
         }
     }();
