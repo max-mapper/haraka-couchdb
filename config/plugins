@@ -1,0 +1,16 @@
+# mostly default list of plugins
+
+# block mails from known bad hosts (see config/dnsbl.zones for the DNS zones queried)
+dnsbl
+
+# block mail from some known bad HELOs - see config/helo.checks.ini for configuration
+helo.checks
+
+# block mail from known bad email addresses you put in config/mail_from.blocklist
+mail_from.blocklist
+
+# Only accept mail for your personal list of hosts
+relay_all
+
+# store mail in couchdb
+couchdb
