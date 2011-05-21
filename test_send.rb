@@ -14,7 +14,7 @@ end
 
 mail = Mail.new Mustache.render(File.read('test.eml'), :hostname => hostname)
 
-1.times do
+10.times do
   fork do
     mail.deliver!
   end
