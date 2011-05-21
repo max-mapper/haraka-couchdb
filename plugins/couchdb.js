@@ -52,6 +52,8 @@ exports.hook_queue = function(next, connection) {
       ;
     
     doc['headers'] = body.header.headers_decoded;
+    doc['bodytext'] = body.bodytext;
+    doc['content_type'] = body.ct;
     doc['parts'] = extractChildren(body.children);
     
     request({uri: this.couchURL, method: "POST", headers: headers, body: JSON.stringify(doc)}, function(err, resp, body) {
