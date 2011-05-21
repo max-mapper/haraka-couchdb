@@ -1,6 +1,7 @@
 # CouchDB Plugin for Haraka
 
-Caution: 
+Caution: this is very beta
+
 This is a plugin for the excellent node.js [Haraka](https://github.com/baudehlo/Haraka) email server that will receive incoming email, parse and store them as JSON in CouchDB
 
 ### Install
