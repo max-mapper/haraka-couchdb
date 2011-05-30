@@ -3,7 +3,7 @@ MIME-Version: 1.0
 Sender: max@maxogden.com
 Received: by 10.227.37.7 with HTTP; Fri, 20 May 2011 18:50:31 -0700 (PDT)
 Date: Fri, 20 May 2011 18:50:31 -0700
-Delivered-To: max@maxogden.com
+Delivered-To: pizza@{{hostname}}
 Message-ID: <BANLkTi=n3J3iGQmfuYmK4-UD0PeGYG=WOQ@mail.gmail.com>
 Subject: yo
 From: Max Ogden <max@maxogden.com>

@@ -8,6 +8,7 @@ options = { :address => hostname,
             :port    => 25,
             :domain  => hostname
           }
+          
 Mail.defaults do
   delivery_method :smtp, options
 end
