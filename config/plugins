@@ -4,7 +4,7 @@
 dnsbl
 
 # block mail from some known bad HELOs - see config/helo.checks.ini for configuration
-helo.checks
+# helo.checks
 
 # block mail from known bad email addresses you put in config/mail_from.blocklist
 mail_from.blocklist
