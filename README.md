@@ -10,7 +10,7 @@ Here's how to set up your own SMTP server from scratch!
 
 Install `git` (`sudo apt-get install git-core`)
 
-Install `node.js` via [these instructions](https://github.com/joyent/node/wiki/Installation). It is recommended that you build node yourself as opposed to using a package manager because it will make it easier to upgrade later.
+Install `node.js` via [these instructions](https://github.com/joyent/node/wiki/Installation). It is recommended that you build node yourself as opposed to using a package manager because it will make it easier to upgrade later. This app was developed against node version 0.4.8. You can install a specific version by running `git checkout v0.4.8` before running `configure/make/make install`.
 
 Install `npm`, the node package manager: `curl http://npmjs.org/install.sh | sh`
   
