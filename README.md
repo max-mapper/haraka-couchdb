@@ -20,6 +20,12 @@ Download [CouchBase server community edition](http://info.couchbase.com/couchbas
     chmod +x couchbase-server-community_x86_64_1.1.deb
     # install couch
     dpkg -i couchbase-server-community_x86_64_1.1.deb
+    
+By default CouchDB is not accessible to external network traffic, so you will have to be logged into the machine running Couch to interact with it. You can open up Couch to external traffic by setting the `bind_address` to `0.0.0.0` in the Couch configuration: 
+
+    curl -X PUT http://localhost:5984/_config/httpd/bind_address -d '"0.0.0.0"' -H "Content-type:application/json"
+    
+However, before you do this please be sure to read about the [CouchDB security model](http://blog.couchbase.com/whats-new-in-couchdb-1-0-part-4-securityn-stuff).
 
 Install [Haraka](https://github.com/baudehlo/Haraka): `npm install -g Haraka`
 
