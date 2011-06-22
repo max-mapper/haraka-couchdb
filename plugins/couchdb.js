@@ -2,6 +2,7 @@ var fs = require('fs')
   , sys = require('sys')
   , request = require('request')
   , Buffers = require('buffers')
+  , _ = require('underscore')
   , headers = {'content-type':'application/json', 'accept':'application/json'}
   , transactions = {}
   ;
@@ -47,65 +48,65 @@ function extractChildren(children) {
   }) 
 }
 
-function parseAddress(address) {
-  var parsed = { 
-    user: address.substr(0, address.lastIndexOf('@')),
-    domain: address.substr(address.lastIndexOf('@') + 1, address.length)
-  }
-  if (parsed.user.indexOf('+')) {
-    var subaddress = parsed.user.split('+');
-    parsed.user = subaddress[0];
-    parsed.label = subaddress[1];
+function parseSubaddress(user) {
+  var parsed = {username: user};
+  if (user.indexOf('+')) {
+    parsed.username = user.split('+')[0];
+    parsed.subaddress = user.split('+')[1];
   }
   return parsed;
 }
 
 exports.hook_queue = function(next, connection) {
-  var doc = transactions[connection.transaction.uuid].doc()
+  var common = transactions[connection.transaction.uuid].doc()
     , body = connection.transaction.body
+    , docCounter = 0
+    , baseURI = this.couchURL + "/" + this.dbPrefix
     ;
-  
-  doc['headers'] = body.header.headers_decoded;
-  doc['bodytext'] = body.bodytext;
-  doc['content_type'] = body.ct;
-  doc['parts'] = extractChildren(body.children);
-  
-  if ('x-forwarded-to' in doc['headers'] && doc['headers']['x-forwarded-to'].length > 0) {
-    var db = doc['headers']['x-forwarded-to'][0];
-  } else if ('delivered-to' in doc['headers'] && doc['headers']['delivered-to'].length > 0) {
-    var db = doc['headers']['delivered-to'][0];
-  }
-  if (db) {
-    var address = parseAddress(db)
-      , db = this.couchURL + "/" + this.dbPrefix + address.user;
-    if (address.label) doc['label'] = address.label;
-  } else {
-    var db = this.couchURL + "/" + this.dbPrefix + "blackhole";
-  }
+  connection.logdebug(JSON.stringify(connection.transaction.rcpt_to));
+  common['headers'] = body.header.headers_decoded;
+  common['bodytext'] = body.bodytext;
+  common['content_type'] = body.ct;
+  common['parts'] = extractChildren(body.children);
+
+  var dbs = connection.transaction.rcpt_to.map(function(recipient) {
+    docCounter++;
+    var db = {doc: {tags: []}};
+    var user = parseSubaddress(recipient.user);
+    db.uri = baseURI + user.username;
+    db.doc.recipient = recipient;
+    if (user.subaddress) db.doc.tags.push(user.subaddress);
+    db.doc = _.extend({}, db.doc, common);
+    return db;
+  })
   
   function resolve(err, resp, body) {
-    if (err) next(DENY, "couch error " + body);
-    connection.logdebug(body);
-    delete transactions[connection.transaction.uuid];
-    next(OK);
+    docCounter--;
+    if (docCounter === 0) {
+      delete transactions[connection.transaction.uuid];
+      next(OK); 
+    }
   }
   
-  var message = {uri: db, method: "POST", headers: headers, body: JSON.stringify(doc)};
-  request(message, function(err, resp, body) {
-    if (resp.statusCode === 404) {
-      var body = JSON.parse(body);
-      if (body.error === "not_found" && body.reason === "no_db_file") {
-        connection.logdebug(db + " does not exist... creating");
-        request({method: "PUT", uri:db, headers:headers}, function(err, resp, body) {
-          if (JSON.parse(body).ok === true) {
-            request(message, resolve);           
-          } else {
-            next(DENY, "couch error " + body);
-          }
-        })
+  dbs.map(function(db) {
+    var message = {uri: db.uri, method: "POST", headers: headers, body: JSON.stringify(db.doc)};
+    request(message, function(err, resp, body) {
+      if (resp.statusCode === 404) {
+        var body = JSON.parse(body);
+        if (body.error === "not_found" && body.reason === "no_db_file") {
+          request({method: "PUT", uri:db.uri, headers:headers}, function(err, resp, body) {
+            connection.logdebug(body);            
+            if (JSON.parse(body).ok === true) {
+              request(message, resolve);
+            } else {
+              // TODO this sucks :D
+              next(DENY, "couch error " + body);
+            }
+          })
+        }
+      } else {
+        resolve(err, resp, body);
       }
-    } else {
-      resolve(err, resp, body);
-    }
+    });
   });
 };
