@@ -31,6 +31,8 @@ Install [Haraka](https://github.com/baudehlo/Haraka): `npm install -g Haraka`
 
 The default Haraka configuration assumes you have a couch running at `http://localhost:5984` (this is also Couch's default). You can change this setting in the file `config/couchdb.url`. Be sure to include your admin username and password in the URL if you have one set.
 
+Also make sure to edit the file `config/me` to contain the domain name that you want to receive mail at (the same domain as your MX record, or localhost for dev testing) 
+
 You can also set the database prefix name in the file `config/couchdb.dbPrefix`. The default value is "mail_", which means that messages sent to `bill@yourawesomedomain.com` will be stored in a database called `mail_bill` in Couch.
 
     git clone git://github.com/maxogden/haraka-couchdb.git
