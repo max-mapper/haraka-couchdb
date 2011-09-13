@@ -21,7 +21,7 @@ function attachment() {
     return {
       start: function(content_type, name) {
         filename = name;
-        doc._attachments[filename] = {content_type: content_type};
+        doc._attachments[filename] = {content_type: content_type.replace(/\n/g, " ")};
       },
       data: function(data) { bufs.push(data) },
       end: function() { if(filename) doc._attachments[filename]['data'] = bufs.slice().toString('base64') },
